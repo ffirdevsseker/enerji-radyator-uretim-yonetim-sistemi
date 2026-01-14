@@ -234,4 +234,5 @@ Kodu kopyala
 
 Bu dokümanda anlatılan ilişkilerin görsel karşılığı aşağıdaki dosyada yer almaktadır:
 
-📎 **Sunucu_er_diyagrami.png**
+📎 **[Sunucu_er_diyagrami.png](Sunucu_er_diyagrami.png)**
+
