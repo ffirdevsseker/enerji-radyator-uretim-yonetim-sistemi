@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Maliyet Dosyaları - Enerji</title>
+    <link rel="stylesheet" href="../components/header.css">
+    <link rel="stylesheet" href="../assets/css/maliyet-dosyalari.css">
+    <link rel="stylesheet" href="../assets/css/global.css">
+</head>
+<body>
+    <!-- Header Container -->
+    <div id="header-container"></div>
+    
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="container">
+            <div class="content-wrapper">
+                <!-- 1️⃣ Radyötör Seçimi -->
+                <section class="radyator-section">
+                    <h2>Radyötör Seçimi</h2>
+                    <div id="radyator-buttons" class="radyator-grid">
+                        <!-- Radyötör butonları dinamik olarak buraya gelecek -->
+                        <button class="btn-radyator-loading">Yükleniyor...</button>
+                    </div>
+                </section>
+
+                <!-- 2️⃣ Maliyet Tablosu -->
+                <section class="maliyet-section" id="maliyet-section" style="display: none;">
+                    <h2>Maliyet Tablosu - <span id="secili-radyator"></span></h2>
+                    
+                    <div class="table-container">
+                        <table class="maliyet-table">
+                            <thead>
+                                <tr>
+                                    <th>No</th>
+                                    <th>Stok Adı</th>
+                                    <th>Birim</th>
+                                    <th>Kullanılan Miktar</th>
+                                    <th>Liste Fiyatı</th>
+                                    <th>Maliyeti (₺)</th>
+                                    <th>İşlemler</th>
+                                </tr>
+                            </thead>
+                            <tbody id="maliyet-table-body">
+                                <!-- Satırlar dinamik olarak buraya gelecek -->
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- 4️⃣ Hammadde Ekleme Butonu -->
+                    <div class="add-hammadde-section">
+                        <button class="btn-add-hammadde" id="btn-add-hammadde" onclick="openAddHammaddeModal()">
+                            +
+                        </button>
+                    </div>
+
+                    <!-- 3️⃣ Alt Toplam -->
+                    <div class="toplam-alan">
+                        <strong>Toplam Maliyet:</strong>
+                        <span id="toplam-maliyet">₺0,00</span>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </main>
+
+    <!-- Hammadde Ekleme Modal -->
+    <div id="add-hammadde-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Hammadde Ekle</h3>
+                <span class="close-modal" onclick="closeAddHammaddeModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <form id="add-hammadde-form">
+                    <div class="form-group">
+                        <label for="hammadde-select">Hammadde Seçin:</label>
+                        <select id="hammadde-select" class="form-select" required>
+                            <option value="">-- Hammadde Seçin --</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="kullanilan-miktar">Kullanılan Miktar:</label>
+                        <input type="number" id="kullanilan-miktar" class="form-input" 
+                               step="0.001" min="0" required placeholder="0.000">
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn-primary">Kaydet</button>
+                        <button type="button" class="btn-secondary" onclick="closeAddHammaddeModal()">İptal</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hammadde Seçim Modal (Eski) -->
+    <div id="hammadde-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Hammadde Seçin</h3>
+                <span class="close-modal">&times;</span>
+            </div>
+            <div class="modal-body">
+                <input type="text" id="hammadde-search" placeholder="Hammadde ara..." class="search-input">
+                <div id="hammadde-list" class="hammadde-list">
+                    <!-- Hammadde listesi buraya gelecek -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Radyötör Seçim Modal -->
+    <div id="radyator-selection-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Radyötör Seçin</h3>
+                <span class="close-modal">&times;</span>
+            </div>
+            <div class="modal-body">
+                <input type="text" id="radyator-selection-search" placeholder="Radyötör ara..." class="search-input">
+                <div id="radyator-selection-list" class="radyator-selection-list">
+                    <!-- Radyötör listesi buraya gelecek -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Yeni Radyötör Ekleme Modal -->
+    <div id="yeni-radyator-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Yeni Radyötör Ekle</h3>
+                <span class="close-modal">&times;</span>
+            </div>
+            <div class="modal-body">
+                <form id="yeni-radyator-form">
+                    <div class="form-group">
+                        <label for="radyator-adi">Radyötör Adı:</label>
+                        <input type="text" id="radyator-adi" required class="form-input">
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn-primary">Ekle</button>
+                        <button type="button" class="btn-secondary" onclick="closeYeniRadyatorModal()">İptal</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Scripts -->
+    <script src="../components/header.js"></script>
+    <script src="../assets/js/maliyet-dosyalari.js"></script>
+</body>
+</html>

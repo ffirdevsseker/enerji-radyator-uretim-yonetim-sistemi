@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enerji - Ana Sayfa</title>
+    <link rel="stylesheet" href="../components/header.css">
+    <link rel="stylesheet" href="../assets/css/kayitlar.css">
+    <link rel="stylesheet" href="../assets/css/global.css">
+</head>
+<body>
+    <!-- Header Component -->
+    <div id="header-container"></div>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="page-shell">
+            <!-- Top bar: title, help, global search -->
+        
+            <div class="content-grid">
+                <!-- Left column: insight cards + filter panel -->
+                <div class="left-column">
+                    <!-- Toggle button for insight cards -->
+                    <button id="toggleInsightCards" class="toggle-insight-btn" aria-label="İstatistikleri göster/gizle" title="İstatistikleri göster/gizle">
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M2 8h12M2 4h12M2 12h12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                        </svg>
+                        <span>İstatistikler</span>
+                        <svg class="chevron" width="12" height="12" viewBox="0 0 12 12" fill="none">
+                            <path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </button>
+
+                    <!-- Insight cards in 2x2 grid above left panel -->
+                    <div class="insight-cards-compact hidden" id="insightCardsContainer" aria-label="Özet kartlar">
+                        <article class="insight-card-compact" data-stat="customers">
+                            <header>Müşteriler</header>
+                            <strong id="statCustomers">—</strong>
+                            <small>Kayıtlı</small>
+                        </article>
+                        <article class="insight-card-compact" data-stat="suppliers">
+                            <header>Tedarikçiler</header>
+                            <strong id="statSuppliers">—</strong>
+                            <small>Kayıtlı</small>
+                        </article>
+                        <article class="insight-card-compact" data-stat="products">
+                            <header>Radyatörler</header>
+                            <strong id="statProducts">—</strong>
+                            <small>Çeşit</small>
+                        </article>
+                        <article class="insight-card-compact" data-stat="materials">
+                            <header>Hammaddeler</header>
+                            <strong id="statMaterials">—</strong>
+                            <small>Çeşit</small>
+                        </article>
+                    </div>
+
+                    <!-- Filter panel below cards -->
+                    <aside class="left-panel" role="region" aria-label="Filtreler">
+                        <div class="quick-filters">
+                            <button class="qf active" data-type="customer">Müşteri</button>
+                            <button class="qf" data-type="supplier">Tedarikçi</button>
+                            <button class="qf" data-type="product">Radyatörler</button>
+                            <button class="qf" data-type="material">Hammadde</button>
+                        </div>
+
+                        <!-- Customer Type Filter (only visible when customer tab is active) -->
+                        <div id="customerTypeFilter" class="customer-type-filter" style="display: none;">
+                            <label style="display: block; margin-bottom: 8px; font-weight: 500; color: #333; font-size: 14px;">Müşteri Tipi</label>
+                            <div style="display: flex; gap: 8px;">
+                                <button class="customer-type-btn active" data-customer-type="all">Tümü</button>
+                                <button class="customer-type-btn" data-customer-type="bireysel">Bireysel</button>
+                                <button class="customer-type-btn" data-customer-type="bayi">Bayi</button>
+                            </div>
+                        </div>
+
+                        <!-- left search removed -->
+
+                        <div class="quick-actions">
+                            <button id="newRecordBtn" class="primary large">Yeni Kayıt</button>
+                            <button id="exportBtn" class="large">Dışa Aktar (PDF)</button>
+                        </div>
+
+                        <!-- saved-views removed as requested -->
+                    </aside>
+                </div>
+
+                <!-- Right main column -->
+                <section class="right-panel" role="main" aria-label="Kayıt listesi">
+                    <div class="list-area">
+                        <div id="cardContainer" class="card-container" style="display:none"></div>
+                        <table class="records-table">
+                            <thead>
+                                <tr>
+                                    <th><input id="selectAll" type="checkbox" aria-label="Tümünü seç"></th>
+                                    <th>Tür</th>
+                                    <th>Ad / Firma</th>
+                                    <th>İkinci Bilgi</th>
+                                    <th>Stok / Toplam Alış</th>
+                                    <th>İşlemler</th>
+                                </tr>
+                            </thead>
+                            <tbody id="recordsBody"></tbody>
+                        </table>
+                        <p class="panel-empty" data-hook="records">Henüz kayıt listesi bulunamadı.</p>
+                    </div>
+
+                    <!-- Pagination -->
+                    <div class="pagination-container" id="paginationContainer" style="display: none;">
+                        <div class="pagination-info">
+                            <span id="paginationInfo">1-20 / 0 kayıt</span>
+                        </div>
+                        <div class="pagination-controls">
+                            <button id="firstPageBtn" class="pagination-btn" aria-label="İlk sayfa" disabled>
+                                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                    <path d="M11 12L7 8L11 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <path d="M5 4V12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                                </svg>
+                            </button>
+                            <button id="prevPageBtn" class="pagination-btn" aria-label="Önceki sayfa" disabled>
+                                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                    <path d="M10 12L6 8L10 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                            </button>
+                            <div class="pagination-numbers" id="paginationNumbers">
+                                <!-- Sayfa numaraları buraya eklenecek -->
+                            </div>
+                            <button id="nextPageBtn" class="pagination-btn" aria-label="Sonraki sayfa">
+                                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                    <path d="M6 4L10 8L6 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                            </button>
+                            <button id="lastPageBtn" class="pagination-btn" aria-label="Son sayfa">
+                                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                    <path d="M5 4L9 8L5 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <path d="M11 4V12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </main>
+
+    <!-- Modals -->
+    <!-- New Record Modal -->
+    <div id="newRecordModal" class="modal-overlay" hidden>
+        <div class="modal large" role="dialog" aria-modal="true" aria-labelledby="newRecordTitle">
+            <div class="modal-header">
+                <h3 id="newRecordTitle">Yeni Kayıt Ekle</h3>
+                <button id="newRecordClose" aria-label="Kapat">✕</button>
+            </div>
+            <div class="modal-body" id="newRecordBody">
+                <form id="newRecordForm">
+                    <!-- Dynamic form content will be inserted here -->
+                </form>
+            </div>
+            <div class="modal-footer" id="newRecordFooter">
+                <button id="newRecordCancel" class="btn">İptal</button>
+                <button id="newRecordSave" class="btn primary">Kaydet</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="modalOverlay" class="modal-overlay" hidden>
+        <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+            <div class="modal-header">
+                <h3 id="modalTitle">Başlık</h3>
+                <button id="modalClose" aria-label="Kapat">✕</button>
+            </div>
+            <div class="modal-body" id="modalBody">İçerik</div>
+            <div class="modal-footer" id="modalFooter"></div>
+        </div>
+    </div>
+    
+    <!-- Delete Confirmation Modal -->
+    <div id="deleteConfirmModal" class="modal-overlay" hidden>
+        <div class="modal" role="dialog" aria-modal="true" aria-labelledby="deleteConfirmTitle">
+            <div class="modal-header">
+                <h3 id="deleteConfirmTitle">⚠️ Kayıt Silme</h3>
+                <button id="deleteConfirmClose" aria-label="Kapat">✕</button>
+            </div>
+            <div class="modal-body" id="deleteConfirmBody">
+                <p style="margin: 0 0 16px 0; font-size: 16px;">Bu kaydı silmek istediğinize emin misiniz?</p>
+                <p style="margin: 0; color: #666; font-size: 14px;">Bu işlem geri alınamaz.</p>
+            </div>
+            <div class="modal-footer" id="deleteConfirmFooter">
+                <button id="deleteConfirmNo" class="btn">Hayır</button>
+                <button id="deleteConfirmYes" class="btn primary" style="background: #dc3545;">Evet, Sil</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- jsPDF Library for PDF Export -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+
+    <script src="../components/header.js?v=5"></script>
+    <script src="../assets/js/kayitlar.js?v=5"></script>
+</body>
+</html>

@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Üretim Yönetimi - Enerji</title>
+    <link rel="stylesheet" href="../components/header.css">
+    <link rel="stylesheet" href="../assets/css/uretim.css">
+    <link rel="stylesheet" href="../assets/css/global.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Header Container -->
+    <div id="header-container"></div>
+    
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="container">
+            <div class="page-header">
+                <h1></h1>
+                <button class="btn-add" onclick="openIrsaliyeModal()">
+                    <i class="fas fa-plus"></i> Yeni İrsaliye
+                </button>
+            </div>
+
+            <!-- Layout Grid: Sol ve Sağ -->
+            <div class="content-grid">
+                <!-- Sol Taraf -->
+                <div class="left-column">
+                    <!--  Maliyet Özeti -->
+                    <section class="card">
+                        <div class="card-header">
+                            <h2>Maliyet Özeti</h2>
+                            <button class="btn-icon" onclick="loadMaliyetOzeti()" title="Yenile">
+                                <i class="fas fa-sync-alt"></i>
+                            </button>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-container">
+                                <table class="data-table" id="maliyetTable">
+                                    <thead>
+                                        <tr>
+                                            <th>Radyatör</th>
+                                            <th>Stok</th>
+                                            <th>Hammadde</th>
+                                            <th>Top. Maliyet</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="maliyetBody">
+                                        <tr class="empty-row">
+                                            <td colspan="4">Veri yok</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+
+                <!-- Sağ Taraf -->
+                <div class="right-column">
+                    <!-- � İrsaliye Geçmişi -->
+                    <section class="card">
+                        <div class="card-header">
+                            <h2>İrsaliye Geçmişi</h2>
+                            <input type="text" id="searchIrsaliye" placeholder="Ara..." class="search-box">
+                        </div>
+                        <div class="card-body">
+                            <div class="table-container">
+                                <table class="data-table" id="irsaliyeTable">
+                                    <thead>
+                                        <tr>
+                                            <th>İrsaliye No</th>
+                                            <th>Tarih</th>
+                                            <th>Tip</th>
+                                            <th>Kalem</th>
+                                            <th>İşlemler</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="irsaliyeBody">
+                                        <tr class="empty-row">
+                                            <td colspan="5">Henüz irsaliye kaydı bulunmuyor</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Modal: İrsaliye Detay -->
+    <div id="detayModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>İrsaliye Detayı</h2>
+                <span class="modal-close" onclick="closeModal('detayModal')">&times;</span>
+            </div>
+            <div class="modal-body" id="detayModalBody">
+                <!-- Dinamik içerik -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-secondary" onclick="closeModal('detayModal')">
+                    <i class="fas fa-times"></i> Kapat
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: İrsaliye Oluştur -->
+    <div id="irsaliyeModal" class="modal">
+        <div class="modal-content large">
+            <div class="modal-header">
+                <h2>Yeni İrsaliye Oluştur</h2>
+                <span class="modal-close" onclick="closeModal('irsaliyeModal')">&times;</span>
+            </div>
+            <div class="modal-body">
+                <form id="irsaliyeForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="irsaliye_tipi">İrsaliye Türü <span class="required">*</span></label>
+                            <select id="irsaliye_tipi" name="irsaliye_tipi" required>
+                                <option value="">Seçiniz...</option>
+                                <option value="ÇIKIŞ">Üretim Çıkışı (Ham madde → Fabrika)</option>
+                                <option value="GİRİŞ">Üretim Girişi (Radyatör ← Fabrika)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="irsaliye_no">İrsaliye No <span class="required">*</span></label>
+                            <input type="text" id="irsaliye_no" name="irsaliye_no" required placeholder="IR-2025-0001" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label for="tarih">Tarih <span class="required">*</span></label>
+                            <input type="datetime-local" id="tarih" name="tarih" required>
+                        </div>
+                    </div>
+
+                    <div class="kalemler-section">
+                        <h3>İrsaliye Kalemleri</h3>
+                        <div class="table-container">
+                            <table class="kalemler-table" id="kalemlerTable">
+                                <thead>
+                                    <tr>
+                                        <th>Ürün</th>
+                                        <th>Miktar</th>
+                                        <th>Birim</th>
+                                        <th style="width: 50px;"></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="kalemlerBody">
+                                    <!-- Dinamik olarak eklenecek -->
+                                </tbody>
+                            </table>
+                        </div>
+                        <button type="button" class="btn-secondary" onclick="addKalemRow()" style="margin-top: 12px;">
+                            <i class="fas fa-plus"></i> Yeni Satır Ekle
+                        </button>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="button" class="btn-secondary" onclick="closeModal('irsaliyeModal')">
+                            İptal
+                        </button>
+                        <button type="submit" class="btn-primary">
+                            <i class="fas fa-save"></i> Kaydet
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Maliyet Dosyası Detay -->
+    <div id="maliyetDosyasiModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Maliyet Dosyası Detayı</h2>
+                <span class="modal-close" onclick="closeModal('maliyetDosyasiModal')">&times;</span>
+            </div>
+            <div class="modal-body" id="maliyetDosyasiModalBody">
+                <!-- Dinamik içerik -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-secondary" onclick="closeModal('maliyetDosyasiModal')">
+                    <i class="fas fa-times"></i> Kapat
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="../components/header.js"></script>
+    <script src="../assets/js/uretim.js"></script>
+</body>
+</html>

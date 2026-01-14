@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>İşlemler - Enerji</title>
+    <link rel="stylesheet" href="../components/header.css?v=20251007001">
+    <link rel="stylesheet" href="../assets/css/islemler.css?v=20251007001">
+    <link rel="stylesheet" href="../assets/css/global.css?v=20251007001">
+</head>
+<body>
+    <!-- Header Container -->
+    <div id="header-container"></div>
+    
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="container">
+            <!-- Başlık ve Sekmeler -->
+            <div class="header-section">
+                <div class="tabs">
+                    <button class="tab-button active" data-tab="ham-madde">Ham Madde Alımları</button>
+                    <button class="tab-button" data-tab="radyator">Radyatör Satışları</button>
+                </div>
+            </div>
+            
+            <!-- Yeni İşlem Butonu -->
+            <div class="action-button-section">
+                <button id="addNewBtn" class="btn btn-add-new">
+                    <span>+</span> Yeni İşlem
+                </button>
+            </div>
+
+            <!-- Filtre Alanı - Tek Satır -->
+            <div class="filter-section">
+                <input type="date" id="baslangicTarihi" class="filter-input">
+                <input type="date" id="bitisTarihi" class="filter-input">
+                <!-- Custom Dropdown için Tedarikçi -->
+                <div class="custom-dropdown" id="firmaSelectWrapper">
+                    <div class="dropdown-header" id="firmaSelectHeader">
+                        <span id="firmaSelectText">Tedarikçi</span>
+                        <span class="dropdown-arrow">▼</span>
+                    </div>
+                    <div class="dropdown-list" id="firmaSelectList">
+                        <div class="dropdown-item">
+                            <label>
+                                <input type="checkbox" value="all" id="firmaSelectAll">
+                                <span>Tümü</span>
+                            </label>
+                        </div>
+                        <div id="firmaSelectItems">
+                            <!-- Dinamik olarak doldurulacak -->
+                        </div>
+                    </div>
+                </div>
+                <!-- Custom Dropdown için Ham Madde -->
+                <div class="custom-dropdown" id="urunSelectWrapper">
+                    <div class="dropdown-header" id="urunSelectHeader">
+                        <span id="urunSelectText">Ham Madde</span>
+                        <span class="dropdown-arrow">▼</span>
+                    </div>
+                    <div class="dropdown-list" id="urunSelectList">
+                        <div class="dropdown-item">
+                            <label>
+                                <input type="checkbox" value="all" id="urunSelectAll">
+                                <span>Tümü</span>
+                            </label>
+                        </div>
+                        <div id="urunSelectItems">
+                            <!-- Dinamik olarak doldurulacak -->
+                        </div>
+                    </div>
+                </div>
+                <!-- Fatura Arama -->
+                <div class="fatura-search-wrapper">
+                    <svg class="fatura-search-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <path d="m21 21-4.35-4.35"></path>
+                    </svg>
+                    <input type="text" id="faturaNo" class="filter-input" placeholder="Fatura Ara..." list="faturaListesi" autocomplete="off">
+                    <datalist id="faturaListesi">
+                        <!-- Dinamik olarak doldurulacak -->
+                    </datalist>
+                </div>
+                <button id="filterBtn" class="btn btn-filter">Filtre</button>
+                <button id="clearFilterBtn" class="btn btn-clear">Temizle</button>
+            </div>
+
+            <!-- Tablo Alanı -->
+            <div class="table-section">
+                <div class="table-header">
+                    <h2 class="section-title">İşlem Listesi</h2>
+                </div>
+                <div id="loading" class="loading-spinner" style="display: none;">
+                    Yükleniyor...
+                </div>
+                <table id="mainTable" class="data-table">
+                    <thead id="tableHead">
+                        <!-- Dinamik olarak doldurulacak -->
+                    </thead>
+                    <tbody id="tableBody">
+                        <!-- Dinamik olarak doldurulacak -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <!-- Modal: Ham Madde Alımı Ekle/Düzenle (ÇOKLU) -->
+    <div id="hamMaddeModal" class="modal">
+        <div class="modal-content modal-wide">
+            <div class="modal-header">
+                <h2 id="hamMaddeModalTitle">Yeni Ham Madde Alımı</h2>
+                <span class="close" data-modal="hamMaddeModal">&times;</span>
+            </div>
+            <form id="hamMaddeForm">
+                <input type="hidden" id="hamMaddeId">
+                
+                <!-- Ortak Bilgiler -->
+                <div class="form-section">
+                    <h3 class="form-section-title">Genel Bilgiler</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Tedarikçi *</label>
+                            <select id="tedarikcId" required>
+                                <option value="">Seçiniz</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Tarih *</label>
+                            <input type="date" id="hamMaddeTarih" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Fatura No</label>
+                            <input type="text" id="hamMaddeFaturaNo" placeholder="Otomatik oluşturulacak">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Ham Madde Satırları -->
+                <div class="form-section">
+                    <div class="section-header-with-action">
+                        <h3 class="form-section-title">Ham Maddeler</h3>
+                        <button type="button" id="addHamMaddeRowBtn" class="btn btn-add-row">+ Satır Ekle</button>
+                    </div>
+                    
+                    <div class="table-container">
+                        <table class="items-table">
+                            <thead>
+                                <tr>
+                                    <th style="width: 35%">Ham Madde</th>
+                                    <th style="width: 15%">Miktar</th>
+                                    <th style="width: 12%">Birim</th>
+                                    <th style="width: 18%">Birim Fiyat (₺)</th>
+                                    <th style="width: 15%">Toplam (₺)</th>
+                                    <th style="width: 5%"></th>
+                                </tr>
+                            </thead>
+                            <tbody id="hamMaddeRowsContainer">
+                                <!-- Dinamik satırlar buraya eklenecek -->
+                            </tbody>
+                            <tfoot>
+                                <tr class="total-row">
+                                    <td colspan="4" class="text-right"><strong>GENEL TOPLAM:</strong></td>
+                                    <td colspan="2"><strong id="hamMaddeGenelToplam">0.00 ₺</strong></td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" data-close="hamMaddeModal">İptal</button>
+                    <button type="submit" class="btn btn-primary">Kaydet</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal: Radyatör Satışı Ekle/Düzenle (ÇOKLU) -->
+    <div id="radyatorModal" class="modal">
+        <div class="modal-content modal-wide">
+            <div class="modal-header">
+                <h2 id="radyatorModalTitle">Yeni Radyatör Satışı</h2>
+                <span class="close" data-modal="radyatorModal">&times;</span>
+            </div>
+            <form id="radyatorForm">
+                <input type="hidden" id="radyatorSatisId">
+                
+                <!-- Ortak Bilgiler -->
+                <div class="form-section">
+                    <h3 class="form-section-title">Genel Bilgiler</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Müşteri *</label>
+                            <select id="musteriId" required>
+                                <option value="">Seçiniz</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Tarih *</label>
+                            <input type="date" id="radyatorTarih" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Fatura No</label>
+                            <input type="text" id="radyatorFaturaNo" placeholder="Otomatik oluşturulacak">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Radyatör Satırları -->
+                <div class="form-section">
+                    <div class="section-header-with-action">
+                        <h3 class="form-section-title">Radyatörler</h3>
+                        <button type="button" id="addRadyatorRowBtn" class="btn btn-add-row">+ Satır Ekle</button>
+                    </div>
+                    
+                    <div class="table-container">
+                        <table class="items-table">
+                            <thead>
+                                <tr>
+                                    <th style="width: 40%">Radyatör Modeli</th>
+                                    <th style="width: 12%">Stok</th>
+                                    <th style="width: 15%">Miktar (Adet)</th>
+                                    <th style="width: 18%">Birim Fiyat (₺)</th>
+                                    <th style="width: 15%">Toplam (₺)</th>
+                                    <th style="width: 5%"></th>
+                                </tr>
+                            </thead>
+                            <tbody id="radyatorRowsContainer">
+                                <!-- Dinamik satırlar buraya eklenecek -->
+                            </tbody>
+                            <tfoot>
+                                <tr class="total-row">
+                                    <td colspan="4" class="text-right"><strong>GENEL TOPLAM:</strong></td>
+                                    <td colspan="2"><strong id="radyatorGenelToplam">0.00 ₺</strong></td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" data-close="radyatorModal">İptal</button>
+                    <button type="submit" class="btn btn-primary">Kaydet</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal: İşlem/Fatura Detayı -->
+    <div id="detayModal" class="modal">
+        <div class="modal-content modal-wide">
+            <div class="modal-header">
+                <h2>Fatura Detayı</h2>
+                <span class="close" data-modal="detayModal">&times;</span>
+            </div>
+            <div id="detayContent" class="detay-content">
+                <!-- Dinamik olarak doldurulacak -->
+            </div>
+            <div class="form-actions">
+                <button type="button" class="btn btn-secondary" data-close="detayModal">Kapat</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Scripts -->
+    <script src="../components/header.js"></script>
+    <script src="../assets/js/islemler.js"></script>
+</body>
+</html>

@@ -1,0 +1,255 @@
+:root {
+    --primary-color: #3498db;
+    --primary-dark: #2c80bd;
+    --card-bg: rgba(255, 255, 255, 0.92);
+    --text-color: #2c3e50;
+}
+
+.login-page {
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(135deg, rgba(52, 152, 219, 0.15), rgba(44, 62, 80, 0.25));
+}
+
+.login-background {
+    position: absolute;
+    inset: 0;
+    background-image: radial-gradient(circle at 0% 0%, rgba(52, 152, 219, 0.25) 0, rgba(52, 152, 219, 0) 60%),
+                      radial-gradient(circle at 100% 0%, rgba(46, 204, 113, 0.25) 0, rgba(46, 204, 113, 0) 60%),
+                      radial-gradient(circle at 50% 100%, rgba(241, 196, 15, 0.2) 0, rgba(241, 196, 15, 0) 60%);
+    background-repeat: no-repeat;
+    background-size: 50% 50%;
+    opacity: 0.32;
+    pointer-events: none;
+}
+
+.login-wrapper {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    padding: 40px 20px;
+}
+
+.auth-card {
+    margin: 0 auto;
+    width: min(420px, 100%);
+    background: var(--card-bg);
+    backdrop-filter: blur(10px);
+    border-radius: 24px;
+    box-shadow: 0 30px 60px rgba(44, 62, 80, 0.18);
+    padding: 40px 36px;
+}
+
+.card-header {
+    text-align: center;
+    margin-bottom: 36px;
+}
+
+.brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+.brand-icon {
+    width: 40px;
+    height: 40px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+    background: rgba(52, 152, 219, 0.1);
+    color: var(--primary-color);
+    font-size: 1.5rem;
+}
+
+.card-header h1 {
+    font-size: 1.85rem;
+    color: var(--text-color);
+}
+
+.card-subtitle {
+    font-size: 0.95rem;
+    color: #66758f;
+}
+
+.tab-buttons {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    background: rgba(52, 152, 219, 0.12);
+    border-radius: 12px;
+    padding: 6px;
+    margin-bottom: 28px;
+}
+
+.tab-button {
+    border: none;
+    background: transparent;
+    border-radius: 10px;
+    padding: 12px 0;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #5a6a85;
+    cursor: pointer;
+    transition: all 0.25s ease;
+}
+
+.tab-button.active {
+    background: #fff;
+    color: var(--primary-color);
+    box-shadow: 0 8px 20px rgba(52, 152, 219, 0.18);
+}
+
+.tab-panels {
+    position: relative;
+    /* Panel yüksekliği JS ile ayarlanacak; fallback için min-height */
+    --auth-panel-height: auto;
+    min-height: 260px;
+}
+
+.tab-panel {
+    display: none;
+    animation: fade 0.35s ease forwards;
+    max-height: var(--auth-panel-height);
+    overflow-y: auto;
+    padding-right: 2px; /* scrollbar çarpmaması için */
+    scrollbar-width: thin;
+}
+
+.tab-panel.active {
+    display: block;
+}
+
+/* Webkit Scrollbar ince ayar */
+.tab-panel::-webkit-scrollbar { width: 8px; }
+.tab-panel::-webkit-scrollbar-track { background: transparent; }
+.tab-panel::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.15); border-radius: 4px; }
+.tab-panel::-webkit-scrollbar-thumb:hover { background: rgba(0,0,0,0.28); }
+
+/* Küçük ekranlarda kaydırma yerine doğal uzama */
+@media (max-width: 520px) {
+    .tab-panel { max-height: none; overflow: visible; }
+}
+
+@keyframes fade {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 0.92rem;
+    font-weight: 600;
+    color: #4a5b75;
+}
+
+.form-actions {
+    /* removed old remember/forgot layout */
+    display: none;
+}
+
+/* removed .checkbox styles (no longer used) */
+
+.link {
+    background: none;
+    border: none;
+    color: var(--primary-color);
+    cursor: pointer;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.92rem;
+    transition: color 0.2s ease;
+}
+
+.link:hover,
+.link:focus {
+    color: var(--primary-dark);
+    text-decoration: underline;
+}
+
+.terms-text {
+    font-size: 0.85rem;
+    color: #7b8aa3;
+    margin: 16px 0 22px;
+}
+
+.card-footer {
+    margin-top: 32px;
+    text-align: center;
+}
+
+.card-footer p {
+    margin: 0;
+    color: #5a6a85;
+}
+
+.card-footer .link {
+    font-size: 0.95rem;
+}
+
+.hidden {
+    display: none;
+}
+
+/* Inputs uniform sizing */
+form .form-group input[type="email"],
+form .form-group input[type="password"],
+form .form-group input[type="text"] {
+    width: 100%;
+    padding: 14px 16px;
+    border: 1px solid #d6dde6;
+    border-radius: 12px;
+    font-size: 0.95rem;
+    background: #fff;
+    outline: none;
+    transition: border-color .2s, box-shadow .2s;
+    box-sizing: border-box;
+}
+
+form .form-group input:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(52,152,219,0.25);
+}
+
+.btn.full-width {
+    width: 100%;
+    margin-top: 8px;
+}
+
+/* Tighten spacing after removal */
+#loginForm .form-group:last-of-type { margin-bottom: 10px; }
+
+@media (max-width: 640px) {
+    .auth-card { width: 100%; }
+}
+
+.tab-panel button[type="submit"][disabled] {
+    opacity: 0.7;
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
+.auth-card .message {
+    margin-bottom: 20px;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.auth-card .message.fade-out {
+    opacity: 0;
+    transform: translateY(-6px);
+}
+
+@media (max-width: 480px) {
+    .auth-card {
+        padding: 32px 24px;
+        border-radius: 20px;
+    }
+
+    /* removed form-actions & checkbox responsive rules */
+}
