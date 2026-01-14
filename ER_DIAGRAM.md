@@ -1,332 +1,237 @@
-# ER Diyagramı (Entity-Relationship Diagram)
+# ER Diyagramı (Entity–Relationship Diagram)
 
-Bu doküman, Enerji Radyatör Üretim Yönetim Sistemi veritabanı yapısının ER diyagramını açıklar.
+Bu doküman, **Enerji Radyatör Üretim Yönetim Sistemi** veritabanının
+Entity–Relationship (ER) diyagramını, tablo yapılarını, ilişkileri ve
+veri akışlarını açıklamak amacıyla hazırlanmıştır.
 
-## 📊 Veritabanı Şeması Özeti
-
-Veritabanı, radyatör üretim sürecinin tüm aşamalarını kapsayan 12+ tablodan oluşmaktadır.
-
-## 🔗 Tablo İlişkileri
-
-### Ana Varlıklar ve İlişkileri:
-
-#### 1️⃣ **Müşteri-Satış İlişkisi**
-```
-musteriler (1) ──────< (N) fatura_kalemleri (N) >────── (1) radyotorler
-```
-- Bir müşteri birden fazla fatura kalemine sahip olabilir
-- Her fatura kalemi bir radyatör türüne aittir
-
-#### 2️⃣ **Tedarikçi-Satın Alma İlişkisi**
-```
-tedarikciler (1) ──────< (N) satinalma_hareketleri (N) >────── (1) ham_maddeler
-```
-- Bir tedarikçiden birden fazla hammadde alımı yapılabilir
-- Her alım bir hammadde türüne aittir
-
-#### 3️⃣ **Radyatör-Maliyet İlişkisi**
-```
-radyotorler (1) ──────< (N) maliyet_dosyasi
-```
-- Her radyatör türü için bir maliyet dosyası tanımlanır
-- Maliyet dosyası, radyatör üretimi için gerekli hammaddeleri listeler
-
-#### 4️⃣ **Üretim İrsaliye İlişkileri**
-```
-uretim_irsaliyeleri (1) ──────< (N) irsaliye_kalemleri
-
-irsaliye_kalemleri (N) >────── (0..1) ham_maddeler
-irsaliye_kalemleri (N) >────── (0..1) radyotorler
-```
-- Bir irsaliye birden fazla kaleme sahip olabilir
-- Her kalem ya hammadde ya da radyatör içerir (mutually exclusive)
-
-#### 5️⃣ **Stok Hareket Takibi**
-```
-stok_hareketleri (N) >────── (0..1) ham_maddeler
-stok_hareketleri (N) >────── (0..1) radyotorler
-```
-- Stok hareketleri tüm giriş/çıkış işlemlerini loglar
-- Polymorphic ilişki: hammadde VEYA radyatör
-
-## 📋 Detaylı Tablo Açıklamaları
-
-### Core Tables (Ana Tablolar)
-
-#### 🏢 **musteriler**
-- **Amaç:** Müşteri bilgilerini saklar
-- **Alanlar:**
-  - `id` (PK): Benzersiz müşteri kimliği
-  - `adi`: Müşteri adı
-  - `musteri_tipi`: Müşteri tipi (Bireysel/Kurumsal)
-  - `vergi_no_tc`: Vergi numarası veya TC kimlik no
-  - `telefon`: İletişim telefonu
-  - `adres`: Adres bilgisi
-- **İlişkiler:** 
-  - → fatura_kalemleri (1:N)
-
-#### 🏭 **tedarikciler**
-- **Amaç:** Tedarikçi bilgilerini saklar
-- **Alanlar:**
-  - `id` (PK): Benzersiz tedarikçi kimliği
-  - `adi`: Tedarikçi firma adı
-  - `yetkili_kisi`: Yetkili kişi adı
-  - `telefon`: İletişim telefonu
-  - `email`: E-posta adresi
-  - `adres`: Adres bilgisi
-- **İlişkiler:**
-  - → satinalma_hareketleri (1:N)
-
-#### 🧱 **ham_maddeler**
-- **Amaç:** Hammadde stoklarını ve bilgilerini saklar
-- **Alanlar:**
-  - `id` (PK): Benzersiz hammadde kimliği
-  - `adi`: Hammadde adı
-  - `birim`: Ölçü birimi (kg, adet, metre, vb.)
-  - `depo_stok_miktari`: Depodaki stok miktarı
-  - `fabrika_stok_miktari`: Fabrikadaki stok miktarı
-  - `minimum_stok`: Minimum stok seviyesi
-  - `liste_fiyati`: Liste fiyatı
-  - `kaynak_tipi`: Stok kaynağı (Kendi Stok/Tedarikçi)
-  - `son_stok_guncelleme`: Son güncelleme zamanı
-- **İlişkiler:**
-  - → satinalma_hareketleri (1:N)
-  - → stok_hareketleri (1:N)
-  - → irsaliye_kalemleri (1:N)
-  - → maliyet_dosyasi (referans)
-
-#### 🔥 **radyotorler**
-- **Amaç:** Radyatör ürün bilgilerini ve stoklarını saklar
-- **Alanlar:**
-  - `id` (PK): Benzersiz radyatör kimliği
-  - `adi`: Radyatör model adı
-  - `kategori`: Ürün kategorisi
-  - `stok_miktari`: Mevcut stok adedi
-  - `olcu`: Radyatör ölçüsü
-  - `dilim_sayisi`: Dilim sayısı
-  - `son_stok_guncelleme`: Son güncelleme zamanı
-- **İlişkiler:**
-  - → fatura_kalemleri (1:N)
-  - → stok_hareketleri (1:N)
-  - → irsaliye_kalemleri (1:N)
-  - → maliyet_dosyasi (1:N)
-
-### Transaction Tables (İşlem Tabloları)
-
-#### 💰 **satinalma_hareketleri**
-- **Amaç:** Tedarikçilerden hammadde alımlarını kaydeder
-- **Alanlar:**
-  - `id` (PK): Hareket kimliği
-  - `tedarikci_id` (FK): Tedarikçi referansı
-  - `hammadde_id` (FK): Hammadde referansı
-  - `miktar`: Alınan miktar
-  - `alim_fiyat`: Birim alış fiyatı
-  - `fatura_no`: Fatura numarası
-  - `fatura_id`: Fatura grubu kimliği
-  - `alim_tarihi`: Alım tarihi
-- **İlişkiler:**
-  - tedarikciler ← (N:1)
-  - ham_maddeler ← (N:1)
-- **İş Kuralı:** Her alım stoğu otomatik artırır
-
-#### 📦 **uretim_irsaliyeleri**
-- **Amaç:** Fabrikaya hammadde çıkışı ve radyatör girişi irsaliyelerini saklar
-- **Alanlar:**
-  - `id` (PK): İrsaliye kimliği
-  - `irsaliye_no` (UNIQUE): Benzersiz irsaliye numarası
-  - `tarih`: İrsaliye tarihi
-  - `irsaliye_tipi`: Tip (ÇIKIŞ/GİRİŞ)
-  - `aciklama`: Açıklama metni
-- **İlişkiler:**
-  - → irsaliye_kalemleri (1:N)
-- **İş Kuralı:** İrsaliye numarası tekrar edemez
-
-#### 📄 **irsaliye_kalemleri**
-- **Amaç:** İrsaliye kalemlerini detaylı olarak saklar
-- **Alanlar:**
-  - `id` (PK): Kalem kimliği
-  - `irsaliye_id` (FK): İrsaliye referansı
-  - `urun_tipi`: Ürün tipi (Hammadde/Radyatör)
-  - `hammadde_id` (FK, nullable): Hammadde referansı
-  - `radyator_id` (FK, nullable): Radyatör referansı
-  - `miktar`: Miktar
-  - `birim_fiyat`: Birim fiyat
-- **İlişkiler:**
-  - uretim_irsaliyeleri ← (N:1)
-  - ham_maddeler ← (N:0..1)
-  - radyotorler ← (N:0..1)
-- **İş Kuralı:** hammadde_id VEYA radyator_id dolu olmalı (ikisi birden değil)
-
-#### 💵 **maliyet_dosyasi**
-- **Amaç:** Her radyatör için gerekli hammaddeleri ve maliyetleri tanımlar
-- **Alanlar:**
-  - `id` (PK): Kayıt kimliği
-  - `radyator_id` (FK): Radyatör referansı
-  - `sira`: Sıra numarası
-  - `stok_kodu`: Hammadde stok kodu
-  - `stok_adi`: Hammadde adı
-  - `birim`: Birim
-  - `miktar`: Gerekli miktar
-  - `fiyat`: Birim fiyat
-- **İlişkiler:**
-  - radyotorler ← (N:1)
-- **İş Kuralı:** Radyatör üretiminde bu dosya baz alınır
-
-#### 📊 **stok_hareketleri**
-- **Amaç:** Tüm stok giriş/çıkış hareketlerini loglar
-- **Alanlar:**
-  - `id` (PK): Hareket kimliği
-  - `tarih_saat`: İşlem zamanı
-  - `urun_tipi`: Ürün tipi (Hammadde/Radyatör)
-  - `hammadde_id` (FK, nullable): Hammadde referansı
-  - `radyator_id` (FK, nullable): Radyatör referansı
-  - `hareket_tipi`: Hareket tipi (Giriş/Çıkış)
-  - `kaynak_tablo`: Kaynak tablo (nereden kaynaklandı)
-  - `kaynak_id`: Kaynak kayıt kimliği
-  - `miktar`: Miktar
-  - `birim_fiyat`: Birim fiyat
-- **İlişkiler:**
-  - ham_maddeler ← (N:0..1)
-  - radyotorler ← (N:0..1)
-- **Özellik:** Audit log - tüm stok hareketlerini izler
-
-#### 🧾 **fatura_kalemleri**
-- **Amaç:** Müşteri satış fatura kalemlerini saklar
-- **Alanlar:**
-  - `id` (PK): Kalem kimliği
-  - `musteri_id` (FK): Müşteri referansı
-  - `radyator_id` (FK): Radyatör referansı
-  - `miktar`: Satılan miktar
-  - `birim_fiyat`: Satış fiyatı
-  - `tarih`: Satış tarihi
-  - `fatura_no`: Fatura numarası
-- **İlişkiler:**
-  - musteriler ← (N:1)
-  - radyotorler ← (N:1)
-
-#### 📋 **kalan_hammadde_kanit**
-- **Amaç:** Fabrikada kullanılan hammaddelerin kanıt tablosu
-- **Alanlar:**
-  - `id` (PK): Kayıt kimliği
-  - `irsaliye_id` (FK): İrsaliye referansı
-  - `radyator_id` (FK): Radyatör referansı
-  - `hammadde_id` (FK): Hammadde referansı
-  - `kullanilan_miktar`: Kullanılan miktar
-  - `birim`: Birim
-  - `tarih`: İşlem tarihi
-- **İlişkiler:**
-  - uretim_irsaliyeleri ← (N:1)
-  - radyotorler ← (N:1)
-  - ham_maddeler ← (N:1)
-- **Özellik:** Üretimde kullanılan hammaddeleri detaylı takip eder
-
-## 🔄 Veri Akışı
-
-### 1. Hammadde Tedarik Süreci
-```
-[Tedarikçi] → satinalma_hareketleri → ham_maddeler (depo_stok ↑)
-                                   ↓
-                            stok_hareketleri (log)
-```
-
-### 2. Üretim Çıkış Süreci (Hammadde Fabrikaya)
-```
-ham_maddeler (depo_stok ↓, fabrika_stok ↑) ← irsaliye_kalemleri ← uretim_irsaliyeleri (ÇIKIŞ)
-                                          ↓
-                                   stok_hareketleri (log)
-```
-
-### 3. Üretim Giriş Süreci (Radyatör Depoya)
-```
-uretim_irsaliyeleri (GİRİŞ) → irsaliye_kalemleri → radyotorler (stok ↑)
-                                                ↓
-                                         stok_hareketleri (log)
-                                                ↓
-                          maliyet_dosyasi → ham_maddeler (fabrika_stok ↓)
-                                                ↓
-                                    kalan_hammadde_kanit (kanıt)
-```
-
-### 4. Satış Süreci
-```
-[Müşteri] → fatura_kalemleri → radyotorler (stok ↓)
-                             ↓
-                      stok_hareketleri (log)
-```
-
-## 🎨 ER Diyagramı Görseli
-
-README.md dosyasındaki ASCII diyagram temel ilişkileri göstermektedir. Detaylı görsel ER diyagramı için aşağıdaki araçlardan biri kullanılabilir:
-
-### Önerilen Araçlar:
-1. **MySQL Workbench** - Reverse engineering ile veritabanından otomatik diyagram oluşturma
-2. **dbdiagram.io** - Online ER diyagram tasarlama
-3. **Draw.io** - Ücretsiz diyagram çizim aracı
-4. **Lucidchart** - Profesyonel diyagram tasarımı
-
-### MySQL Workbench ile ER Diyagramı Oluşturma:
-```
-1. MySQL Workbench'i açın
-2. Database → Reverse Engineer seçin
-3. Veritabanı bağlantınızı yapın
-4. caloenergia_vt veritabanını seçin
-5. Execute → ER diyagramı otomatik oluşturulur
-6. File → Export → Export as PNG/PDF
-```
-
-## 📐 Veritabanı Tasarım Prensipleri
-
-### Normalizasyon:
-- **1NF (First Normal Form):** Tüm tablolar atomik değerler içerir ✅
-- **2NF (Second Normal Form):** Kısmi bağımlılıklar yoktur ✅
-- **3NF (Third Normal Form):** Geçişli bağımlılıklar yoktur ✅
-
-### Index Stratejisi:
-- Primary Key'ler otomatik index'lenir
-- Foreign Key'ler için index oluşturulması önerilir
-- Sık sorgulanan kolonlar (fatura_no, irsaliye_no) için index
-
-### Veri Bütünlüğü:
-- **Referential Integrity:** Foreign Key constraint'ler
-- **Domain Integrity:** CHECK constraint'ler
-- **Entity Integrity:** PRIMARY KEY constraint'ler
-- **Business Rules:** Trigger ve stored procedure'ler
-
-## 🔒 Güvenlik ve İzinler
-
-### Önerilen Kullanıcı Rolleri:
-```sql
--- Admin: Tüm yetkiler
-GRANT ALL PRIVILEGES ON caloenergia_vt.* TO 'admin_user'@'localhost';
-
--- Operator: CRUD yetkisi
-GRANT SELECT, INSERT, UPDATE, DELETE ON caloenergia_vt.* TO 'operator_user'@'localhost';
-
--- Reporter: Sadece okuma yetkisi
-GRANT SELECT ON caloenergia_vt.* TO 'reporter_user'@'localhost';
-```
-
-## 📊 Performans Optimizasyonu
-
-### Önerilen Index'ler:
-```sql
--- Sık kullanılan sorgular için
-CREATE INDEX idx_satinalma_tarih ON satinalma_hareketleri(alim_tarihi);
-CREATE INDEX idx_irsaliye_tarih ON uretim_irsaliyeleri(tarih);
-CREATE INDEX idx_stok_tarih ON stok_hareketleri(tarih_saat);
-CREATE INDEX idx_fatura_no ON satinalma_hareketleri(fatura_no);
-CREATE INDEX idx_irsaliye_no ON uretim_irsaliyeleri(irsaliye_no);
-
--- Foreign key index'leri
-CREATE INDEX idx_fatura_musteri ON fatura_kalemleri(musteri_id);
-CREATE INDEX idx_fatura_radyator ON fatura_kalemleri(radyator_id);
-CREATE INDEX idx_satinalma_tedarikci ON satinalma_hareketleri(tedarikci_id);
-```
+ER diyagramı; satın alma, üretim, stok, maliyet ve satış süreçlerinin
+tamamını kapsayacak şekilde tasarlanmıştır.
 
 ---
 
-**Not:** Bu ER diyagramı, projenin akademik gereksinimlerini karşılamak üzere hazırlanmıştır. Gerçek üretim ortamında ek optimizasyonlar gerekebilir.
+## 📊 Genel Veritabanı Yapısı
 
-**Hazırlayan:** [Öğrenci Adı]  
-**Tarih:** 14 Ocak 2026  
-**Ders:** Sunucu Tabanlı Programlama
+Veritabanı aşağıdaki ana süreçleri destekler:
+
+- Kullanıcı yönetimi
+- Hammadde tedariki
+- Radyatör üretimi
+- Maliyet (reçete) yönetimi
+- Stok giriş–çıkış takibi
+- Satış ve faturalama
+- Üretimde kullanılan hammaddelerin kanıtlanması
+
+Toplamda **12+ tablo** içeren ilişkisel bir yapı kullanılmaktadır.
+
+---
+
+## 🧩 Tabloların Genel Listesi
+
+### Kimlik ve Tanım Tabloları
+- **kullanicilar**
+- **musteriler**
+- **tedarikciler**
+
+### Ürün ve Stok Tabloları
+- **ham_maddeler**
+- **radyotorler**
+- **stok_hareketleri**
+
+### Satın Alma Süreci
+- **satinalma_faturalar**
+- **satinalma_hareketleri**
+
+### Üretim Süreci
+- **uretim_irsaliyeleri**
+- **irsaliye_kalemleri**
+- **kalan_hammadde_kanit**
+
+### Satış Süreci
+- **faturalar**
+- **fatura_kalemleri**
+
+### Maliyet Yönetimi
+- **maliyet_dosyalari**
+
+---
+
+## 🔗 Tablo İlişkileri (Cardinality)
+
+### 1️⃣ Kullanıcılar
+kullanicilar
+
+yaml
+Kodu kopyala
+- Sistem kullanıcılarını tutar
+- Diğer tablolarla doğrudan ilişki kurulmamıştır
+- Yetkilendirme ve işlem takibi için kullanılır
+
+---
+
+### 2️⃣ Müşteri – Satış İlişkisi
+musteriler (1) ───< faturalar (N)
+faturalar (1) ───< fatura_kalemleri (N)
+fatura_kalemleri (N) >─── (1) radyotorler
+
+yaml
+Kodu kopyala
+
+- Bir müşteri birden fazla satış faturası oluşturabilir
+- Her fatura birden fazla satış kalemi içerebilir
+- Her fatura kalemi yalnızca **bir radyatör** içerir
+
+---
+
+### 3️⃣ Tedarikçi – Satın Alma İlişkisi
+tedarikciler (1) ───< satinalma_faturalar (N)
+satinalma_faturalar (1) ───< satinalma_hareketleri (N)
+satinalma_hareketleri (N) >─── (1) ham_maddeler
+
+yaml
+Kodu kopyala
+
+- Bir tedarikçiden birden fazla satın alma faturası kesilebilir
+- Her satın alma faturası birden fazla hammadde satırı içerebilir
+- Her satın alma hareketi yalnızca bir hammaddeye aittir
+
+---
+
+### 4️⃣ Hammadde ve Radyatör Tanımları
+ham_maddeler (1) ───< stok_hareketleri (N)
+radyotorler (1) ───< stok_hareketleri (N)
+
+yaml
+Kodu kopyala
+
+- Hammaddeler ve radyatörler stok takibine tabidir
+- Tüm stok giriş–çıkışları **stok_hareketleri** tablosunda loglanır
+
+---
+
+### 5️⃣ Üretim İrsaliyesi İlişkileri
+uretim_irsaliyeleri (1) ───< irsaliye_kalemleri (N)
+
+irsaliye_kalemleri (N) >─── (0..1) ham_maddeler
+irsaliye_kalemleri (N) >─── (0..1) radyotorler
+
+yaml
+Kodu kopyala
+
+- Bir üretim irsaliyesi birden fazla kalem içerebilir
+- Her irsaliye kalemi **ya hammadde ya radyatör** içerir
+- Aynı kalemde iki ürün tipi birlikte bulunamaz
+
+---
+
+### 6️⃣ Maliyet Dosyası (Üretim Reçetesi)
+radyotorler (1) ───< maliyet_dosyalari (N)
+ham_maddeler (1) ───< maliyet_dosyalari (N)
+
+yaml
+Kodu kopyala
+
+- Maliyet dosyası, radyatör üretiminde kullanılan hammaddeleri tanımlar
+- Her kayıt:
+  - Bir radyatöre
+  - Bir hammaddeye
+  - Kullanılan miktara
+  - Maliyet bilgisine sahiptir
+
+---
+
+### 7️⃣ Üretimde Kullanılan Hammadde Kanıtı
+kalan_hammadde_kanit (N) >─── (1) ham_maddeler
+kalan_hammadde_kanit (N) >─── (1) uretim_irsaliyeleri
+
+yaml
+Kodu kopyala
+
+- Üretim sırasında fiilen kullanılan hammaddeler bu tabloda kayıt altına alınır
+- Üretim irsaliyesi ile birebir ilişkilidir
+- Denetim ve raporlama amacıyla kullanılır
+
+---
+
+## ⚙️ İş Kuralları (Business Rules)
+
+### ✅ İş Kuralı 1: İrsaliye Numarası Tekrar Edemez
+- `uretim_irsaliyeleri.irsaliye_no` alanı **benzersizdir**
+- Aynı irsaliye numarasıyla ikinci kayıt oluşturulamaz
+
+---
+
+### ✅ İş Kuralı 2: İrsaliye Kaleminde Ürün Tipi Tutarlılığı
+- `urun_tipi = 'Hammadde'` ise:
+  - `hammadde_id` **dolu**
+  - `radyator_id` **boş** olmalıdır
+- `urun_tipi = 'Radyatör'` ise:
+  - `radyator_id` **dolu**
+  - `hammadde_id` **boş** olmalıdır
+
+---
+
+### ✅ İş Kuralı 3: Üretim Sonrası Otomatik Hammadde Düşümü
+- Radyatör üretimi tamamlandığında:
+  - İlgili radyatörün **maliyet_dosyalari** kayıtları baz alınır
+  - Gerekli hammaddeler **fabrika stoklarından** düşülür
+  - İşlem **stok_hareketleri** tablosuna loglanır
+  - Kullanılan miktarlar **kalan_hammadde_kanit** tablosuna kaydedilir
+
+---
+
+## 🔄 Veri Akış Senaryoları
+
+### 1️⃣ Hammadde Satın Alma Akışı
+Tedarikçi
+→ satinalma_faturalar
+→ satinalma_hareketleri
+→ ham_maddeler (stok ↑)
+→ stok_hareketleri (log)
+
+yaml
+Kodu kopyala
+
+---
+
+### 2️⃣ Üretime Hammadde Çıkışı
+ham_maddeler (depo stok ↓ / fabrika stok ↑)
+← irsaliye_kalemleri
+← uretim_irsaliyeleri (ÇIKIŞ)
+→ stok_hareketleri (log)
+
+yaml
+Kodu kopyala
+
+---
+
+### 3️⃣ Üretim ve Radyatör Girişi
+uretim_irsaliyeleri (GİRİŞ)
+→ irsaliye_kalemleri
+→ radyotorler (stok ↑)
+→ maliyet_dosyalari
+→ ham_maddeler (fabrika stok ↓)
+→ kalan_hammadde_kanit
+→ stok_hareketleri (log)
+
+yaml
+Kodu kopyala
+
+---
+
+### 4️⃣ Satış Akışı
+Müşteri
+→ faturalar
+→ fatura_kalemleri
+→ radyotorler (stok ↓)
+→ stok_hareketleri (log)
+
+yaml
+Kodu kopyala
+
+---
+
+## 🎨 ER Diyagramı Görseli
+
+Bu dokümanda anlatılan ilişkilerin görsel karşılığı aşağıdaki dosyada yer almaktadır:
+
+📎 **Sunucu_er_diyagrami.png**
