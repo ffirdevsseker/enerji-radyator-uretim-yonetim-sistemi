@@ -425,17 +425,3 @@ Proje, aşağıdaki varlıklar için tam CRUD (Create, Read, Update, Delete) iş
 - **JavaScript (ES6+)** - Client-side scripting
 - **Fetch API** - AJAX istekleri
 
-## 📞 İletişim
-
-Proje ile ilgili sorularınız için:
-- **Email:** [email adresi]
-- **GitHub:** [github profil]
-
-## 📄 Lisans
-
-Bu proje eğitim amaçlı geliştirilmiştir.
-
----
-
-**Son Güncelleme:** 14 Ocak 2026  
-**Versiyon:** 1.0.0
